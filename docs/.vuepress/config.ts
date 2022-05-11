@@ -1,8 +1,10 @@
 import { defineUserConfig } from "vuepress";
-import type { DefaultThemeOptions } from "vuepress";
+import { defaultTheme } from "@vuepress/theme-default";
 import { searchPlugin } from "@vuepress/plugin-search";
 
-export default defineUserConfig<DefaultThemeOptions>({
+import { navbar, sidebar } from "./configs";
+
+export default defineUserConfig({
   locales: {
     "/": {
       lang: "zh-CN",
@@ -10,10 +12,24 @@ export default defineUserConfig<DefaultThemeOptions>({
       description: "考拉的粮食",
     },
   },
-  themeConfig: {
+  theme: defaultTheme({
     logo: "https://vuejs.org/images/logo.png",
-  },
+    locales: {
+      "/": {
+        navbar: navbar.zh,
+        sidebar: sidebar.zh,
+        lastUpdatedText: "更新时间",
+        contributorsText: "贡献者",
+        tip: "提示",
+        warning: "警告",
+        danger: "危险",
+      },
+    },
+  }),
   plugins: [
+    {
+      name: "'@vuepress/medium-zoom'",
+    },
     searchPlugin({
       locales: {
         "/": {

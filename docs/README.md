@@ -6,7 +6,7 @@ heroText: Houtaroy
 tagline: 给时光以生命, 而不是给生命以时光
 actions:
   - text: 快速开始
-    link: /java/
+    link: /java/basic/
     type: primary
   - text: 作者简介
     link: /author/
