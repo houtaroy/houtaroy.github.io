@@ -3,7 +3,6 @@ import type { DefaultThemeOptions } from "vuepress";
 import { searchPlugin } from "@vuepress/plugin-search";
 
 export default defineUserConfig<DefaultThemeOptions>({
-  base: "/eucalyptus/",
   locales: {
     "/": {
       lang: "zh-CN",
