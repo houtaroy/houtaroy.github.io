@@ -72,9 +72,9 @@ int n = i;
 | 默认方法                        | √    | √      |
 | 静态方法                        | √    | √      |
 | 对象方法(`equals`/`hashCode`等) | ×    | √      |
-| 多继承                          | √    | ×      |
+| **多继承**                      | ⍻    | ×      |
 
-示例:
+接口的多继承并不真正意义上的多继承, 而是解决冲突的一种方案:
 
 ```java
 public interface IPerson {
@@ -82,19 +82,25 @@ public interface IPerson {
     static String getName() {
         return "person";
     }
-    
-    //默认方法
+}
+
+public interface IMan {
+    // 默认方法
     default Integer getSex() {
         return 1;
     }
-    
-    String getAddress();
 }
 
-public class Person implements IPerson {
-    @Override
-    public String getAddress() {
-        return null;
+public interface IWoman {
+    // 默认方法
+    default Integer getSex() {
+        return 2;
+    }
+}
+
+public class XiaoMing implements IMan, IWoman {
+    public Integer getSex() {
+        return IWoman.super.getSex();
     }
 }
 
@@ -102,7 +108,8 @@ public class Test {
     public void test() {
         // 直接使用接口调用静态方法
         IPerson.getName();
-        new Person().getSex();
+        // 结果为2
+        new XiaoMing().getSex();
     }
 }
 ```
@@ -127,7 +134,7 @@ public class Object {
 }
 ```
 
-`hashCode`是`native`方法, 用来计算对象的哈希值, 哈希值会在`HashMap`等集合中使用
+`hashCode`是`native`方法, 用来计算对象的哈希值, 哈希值会在`HashMap`等容器中使用
 
 Java对象应注意一个原则: **当`equals`结果为`true`时, 两个对象的`hashCode`结果应相同**
 
@@ -137,11 +144,100 @@ Java对象应注意一个原则: **当`equals`结果为`true`时, 两个对象�
 
 :::
 
+### 构建顺序
+
+类(对象)的构建顺序为:
+
+1. 静态代码块
+2. 非静态代码块
+3. 构造方法
+
+其中静态代码块只会在**类的初始化步骤中执行一次**:
+
+```java
+package cn.houtaroy
+
+public class A {
+    static {
+        System.out.println("A");
+    }
+}
+
+public class Test {
+    public static void main(String[] args) {
+        // 只输出一次A
+        new A();
+        Class.forName("cn.houtaroy.A");
+        new A();
+    }
+}
+```
+
 ### 构造方法
 
+如果类不存在构造方法, 会默认添加无参构造方法
 
+构造方法有如下要求:
 
-## IO
+- 方法名与类名相同
+- 无返回值
+- 可以重载, 但不可以重写
+
+### 拷贝
+
+实现`Cloneable`接口, 依据实际情况重写`clone`方法, 例如类中存在对象属性:
+
+```java
+public class A implements Cloneable {
+    
+}
+
+@Data
+public class B implements Cloneable {
+    private A a;
+    
+    @Override
+    public B clone() throws CloneNotSupportedException {
+        B result = (B) super.clone();
+        // 拷贝对象属性a
+        result.setA(result.getA().clone());
+        return result;
+    }
+}
+```
 
 ## 异常
 
+![异常继承关系](./异常继承关系.jpg)
+
+依据继承关系, 异常可分为两大类:
+
+- `Error`: 程序错误异常, 产生后一般会终止运行
+- `Exception`: 运行异常, 程序自行处理
+
+其中`Exception`又可细分为检查异常和非检查异常, 这也是开发中常用的内容
+
+Java内置异常表可参考: [Java 异常处理 | 菜鸟教程 (runoob.com)](https://www.runoob.com/java/java-exceptions.html)
+
+## IO
+
+IO可分为字节流和字符流两大类, 具体层次图如下:
+
+![IO类层次图](./IO类层次图.png)
+
+字节流适合音频/图片等媒体文件, 字符流适合涉及字符的相关内容
+
+## 容器
+
+容器也可称之为集合, 由`Collection`和`Map`两大接口派生而来, 类层次图如下:
+
+![容器类层次图](./容器类层次图.png)
+
+四种主要的容器:
+
+- `List`: 有序, 可重复的列表
+- `Set`: 不可重复的列表
+- `Queue`: 队列
+- `Map`: 键值对, 其中键不可重复, 值可重复
+
+在`java.util.concurrent`包下, 有部分集合的线程安全版本, 例如: `CopyOnWriteArrayList`/`ConcurrentHashMap`

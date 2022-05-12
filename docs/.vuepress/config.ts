@@ -23,6 +23,8 @@ export default defineUserConfig({
         tip: "提示",
         warning: "警告",
         danger: "危险",
+        notFound: ["页面不存在"],
+        backToHome: "返回首页",
       },
     },
   }),

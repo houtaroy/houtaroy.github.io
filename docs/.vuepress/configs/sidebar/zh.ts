@@ -4,7 +4,16 @@ export const zh: SidebarConfig = {
   "/java/": [
     "/java/basic/README.md",
     "/java/standard-library/README.md",
-    "/java/reflection.md",
-    "/java/proxy.md",
+    {
+      text: "实用技巧",
+      collapsible: true,
+      children: [
+        "/java/skills/calculate.md",
+        "/java/skills/string.md",
+        "/java/skills/enum.md",
+        "/java/skills/collection.md",
+        "/java/skills/map.md",
+      ],
+    },
   ],
 };
