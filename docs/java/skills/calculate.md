@@ -28,7 +28,7 @@ b = a >> 1;
 
 ```java
 public boolean isEven(long a) {
-    return (a & 1) == 0;
+  return (a & 1) == 0;
 }
 ```
 

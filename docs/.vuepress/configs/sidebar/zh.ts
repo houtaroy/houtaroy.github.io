@@ -16,4 +16,5 @@ export const zh: SidebarConfig = {
       ],
     },
   ],
+  "/author/": ["/author/README.md"],
 };

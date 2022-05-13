@@ -4,18 +4,18 @@
 
 ```java
 public enum PersonFactory {
-    INSTANCE;
+  INSTANCE;
 
-    public User create(String id) {
-        return new User(id);
-    }
+  public User create(String id) {
+    return new User(id);
+  }
 }
 
 public class Test {
-    public static void main(String[] args) {
-        // 输出: 1
-        System.out.println(PersonFactory.INSTANCE.create("1").getId());
-    }
+  public static void main(String[] args) {
+    // 输出: 1
+    System.out.println(PersonFactory.INSTANCE.create("1").getId());
+  }
 }
 ```
 

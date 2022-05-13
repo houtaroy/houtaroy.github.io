@@ -12,7 +12,7 @@ export const zh: NavbarConfig = [
     activeMatch: "^/spring/",
   },
   {
-    text: "Houtaroy",
+    text: "关于作者",
     link: "/author/",
     activeMatch: "^/author/",
   },
