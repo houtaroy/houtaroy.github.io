@@ -9,6 +9,7 @@ export const zh: SidebarConfig = {
       collapsible: true,
       children: [
         "/java/skills/calculate.md",
+        "/java/skills/byte.md",
         "/java/skills/string.md",
         "/java/skills/enum.md",
         "/java/skills/collection.md",
