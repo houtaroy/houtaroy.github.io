@@ -8,7 +8,7 @@ export const zh: NavbarConfig = [
   },
   {
     text: "Spring",
-    link: "/spring/",
+    link: "/spring/basic/",
     activeMatch: "^/spring/",
   },
   {

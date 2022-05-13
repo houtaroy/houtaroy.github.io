@@ -17,5 +17,13 @@ export const zh: SidebarConfig = {
       ],
     },
   ],
+  "/spring/": [
+    "/spring/basic/README.md",
+    {
+      text: "实用技巧",
+      collapsible: true,
+      children: ["/spring/skills/controller.md"],
+    },
+  ],
   "/author/": ["/author/README.md"],
 };
