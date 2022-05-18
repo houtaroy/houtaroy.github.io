@@ -25,5 +25,6 @@ export const zh: SidebarConfig = {
       children: ["/spring/skills/controller.md"],
     },
   ],
+  "/uni-app/": ["/uni-app/package/"],
   "/author/": ["/author/README.md"],
 };

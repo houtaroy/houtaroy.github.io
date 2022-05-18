@@ -12,6 +12,10 @@ export const zh: NavbarConfig = [
     activeMatch: "^/spring/",
   },
   {
+    text: "开源项目",
+    children: ["/kafka/", { text: "Uni App", link: "/uni-app/package/" }],
+  },
+  {
     text: "关于作者",
     link: "/author/",
     activeMatch: "^/author/",
