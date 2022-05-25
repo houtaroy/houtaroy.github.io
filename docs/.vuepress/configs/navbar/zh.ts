@@ -12,8 +12,17 @@ export const zh: NavbarConfig = [
     activeMatch: "^/spring/",
   },
   {
-    text: "开源项目",
-    children: ["/kafka/", { text: "Uni App", link: "/uni-app/package/" }],
+    text: "系统设计",
+    children: [
+      {
+        text: "消息队列",
+        children: [
+          "/message-queue/basic/",
+          "/message-queue/kafka/",
+          "/message-queue/rocket-mq/",
+        ],
+      },
+    ],
   },
   {
     text: "关于作者",

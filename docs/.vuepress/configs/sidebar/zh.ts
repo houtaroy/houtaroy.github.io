@@ -26,5 +26,10 @@ export const zh: SidebarConfig = {
     },
   ],
   "/uni-app/": ["/uni-app/package/"],
+  "/message-queue/": [
+    "/message-queue/basic/",
+    "/message-queue/kafka/",
+    "/message-queue/rocket-mq/",
+  ],
   "/author/": ["/author/README.md"],
 };
