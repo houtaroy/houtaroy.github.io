@@ -30,6 +30,7 @@ export const zh: SidebarConfig = {
     "/message-queue/basic/",
     "/message-queue/kafka/",
     "/message-queue/rocket-mq/",
+    "/message-queue/rabbit-mq/",
   ],
   "/author/": ["/author/README.md"],
 };

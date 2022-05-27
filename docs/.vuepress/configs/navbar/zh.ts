@@ -20,6 +20,7 @@ export const zh: NavbarConfig = [
           "/message-queue/basic/",
           "/message-queue/kafka/",
           "/message-queue/rocket-mq/",
+          "/message-queue/rabbit-mq/",
         ],
       },
     ],
