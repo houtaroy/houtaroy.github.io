@@ -26,6 +26,7 @@ export const zh: SidebarConfig = {
     },
   ],
   "/uni-app/": ["/uni-app/package/"],
+  "/security/": ["/security/spring-security/"],
   "/message-queue/": [
     "/message-queue/basic/",
     "/message-queue/kafka/",

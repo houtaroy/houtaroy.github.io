@@ -15,6 +15,10 @@ export const zh: NavbarConfig = [
     text: "系统设计",
     children: [
       {
+        text: "认证授权",
+        children: ["/security/spring-security/"],
+      },
+      {
         text: "消息队列",
         children: [
           "/message-queue/basic/",
