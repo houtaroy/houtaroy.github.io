@@ -16,6 +16,11 @@ export const zh: SidebarConfig = {
         "/java/skills/map.md",
       ],
     },
+    {
+      text: "设计模式",
+      collapsible: true,
+      children: ["/java/design-patterns/singleton.md"],
+    },
   ],
   "/spring/": [
     "/spring/basic/README.md",
