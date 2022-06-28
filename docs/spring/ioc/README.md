@@ -150,5 +150,45 @@ public class A {
 
 Spring官方推荐使用**构造函数注入**, 并且指出了**如果构造函数的参数过长, 则代表其职责过多, 第一选择是对其进行拆解**, 而不是选择其它的依赖注入方式
 
+## Bean
 
+### 作用域
 
+- 单例: 只存在一个
+- 原型: 每次都创建新的
+
+### 生命周期方法
+
+按照方法类型可分为: 
+
+- 初始化方法: `initMethod`/`@PostConstruct`
+- 销毁方法: `destroyMethod`/`@PreDestroy`
+
+按照声明方式可分为: 
+
+- Spring: `@Bean(initMethod = "init", destroyMethod = "destroy")`
+- JSR250: `@PostConstruct public void init() {}`
+
+::: tip
+
+Spring与JSR250可以共存, 优先级JSR250 > Spring
+
+:::
+
+生命周期方法有如下限制:
+
+- 方法**无参数**
+
+- 方法**无返回值**
+
+- 方法**可以抛出异常**
+
+- 访问权限无限制
+
+在执行生命周期方法前, **Bean已完成属性赋值**
+
+::: danger
+
+作用域为原型的bean, 不支持`destroyMethod`
+
+:::

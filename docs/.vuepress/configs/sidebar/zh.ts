@@ -30,7 +30,7 @@ export const zh: SidebarConfig = {
     {
       text: "实用技巧",
       collapsible: true,
-      children: ["/spring/skills/controller.md"],
+      children: ["/spring/skills/ant.md", "/spring/skills/controller.md"],
     },
   ],
   "/uni-app/": ["/uni-app/package/"],
