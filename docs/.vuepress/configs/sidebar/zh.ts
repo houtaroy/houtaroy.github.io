@@ -25,7 +25,7 @@ export const zh: SidebarConfig = {
   "/spring/": [
     {
       text: "基础知识",
-      children: ["/spring/ioc/README.md"],
+      children: ["/spring/ioc/README.md", "/spring/event/README.md"],
     },
     {
       text: "实用技巧",
