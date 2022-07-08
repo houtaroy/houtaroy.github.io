@@ -19,3 +19,16 @@ public class Test {
   }
 }
 ```
+
+## 类名小写
+
+使用`Introspector`
+
+```java
+// myBean
+Introspector.decapitalize("MyBean");
+// MYBean
+Introspector.decapitalize("MYBean");
+// MYBEAN
+Introspector.decapitalize("MYBEAN");
+```
