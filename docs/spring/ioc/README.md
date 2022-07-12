@@ -192,3 +192,139 @@ Spring与JSR250可以共存, 优先级JSR250 > Spring
 作用域为原型的bean, 不支持`destroyMethod`
 
 :::
+
+## 装配
+
+### 模块装配
+
+`@Configuration` + `@Import` + `@Bean`
+
+在开发模块时, 我们经常使用这种方式进行装配:
+
+```java
+@Configuration
+@Import(MyBean.class)
+public class MyBeanAutoConfig {
+    
+    @Bean
+    public MyBeanTwo myBeanTwo() {
+        return new MyBeanTwo();
+    }
+}
+```
+
+会在Spring中装配`MyBeanAutoConfig`/`MyBean`/`MyBeanTwo`
+
+`@Import` + `ImportSelector`
+
+手动实现`ImportSelector`, 返回一组全限定类名(即`cn.houtaroy.MyBean`):
+
+```java
+public class MyBeanImportSelector implements ImportSelector {
+    
+    @Override
+    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+        return new String[]{MyBean.class.getName()};
+    }
+}
+```
+
+`@Import` + `ImportBeanDefinitionRegistrar`
+
+手动实现`ImportBeanDefinitionRegistrar`, 注册Bean的定义:
+
+```java
+public class MyBeanRegistrar implements ImportBeanDefinitionRegistrar {
+    
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+        registry.registerBeanDefinition("myBean", new RootBeanDefinition(MyBean.class));
+    }
+}
+```
+
+### 条件装配
+
+顾名思义, 条件装配可以根据指定的条件进行装配, 它弥补了模块装配只要导入了就一定会装配的不足
+
+#### Profile
+
+可以理解为环境条件, 它代表着整个项目的运行环境:
+
+```java
+@Configuration
+public class MyBeanAutoConfig {
+    
+    @Bean
+    @Profile("development")
+    public MyBean myBean() {
+        return new MyBean();
+    }
+}
+```
+
+只有在环境为`development`时才会装配`MyBean`
+
+::: tip
+
+profile默认为`default`
+
+:::
+
+#### Conditional
+
+`profile`控制的是整个项目的条件, `Conditional`则是针对单个Bean的
+
+`Conditional`有许多注解, 以常用的`@ConditionalOnMissingBean`为例:
+
+```java
+@Configuration
+public class MyBeanAutoConfig {
+    
+    @Bean
+    @ConditionalOnMissingBean
+    public MyBean myBean() {
+        return new MyBean();
+    }
+}
+```
+
+当容器中不存在`MyBean`类型的Bean时, 才会装配
+
+`Conditional`可以自定义, 详情参照上述`@ConditionalOnMissingBean`即可
+
+### 扫描装配
+
+使用注解`@ComponentScan`可以通过扫描指定的包路径实现装配
+
+有如下两种常用方式:
+
+- 指定包名: `@ComponentScan("cn.houtaroy.bean")`
+- 指定类所在的包: `@ComponentScan(basePackageClasses = AutoScan.class)`
+
+如果需要定制扫描规则, 可以使用过滤器, Spring默认提供了如下过滤器:
+
+- 默认过滤器: 扫描指定包下的`@Component`/`@Repository`/`@Service`/`@Controller`
+- 注解过滤器: `@ComponentScan(includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, value = MyBean.class)})`
+- 类型过滤器: `@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = Houtaroy.class))`
+- 正则表达式过滤器: `@ComponentScan(includeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "cn.houtaroy.+My.+"))`
+
+当Spring提供的过滤器不满足要求时, 可以手动实现接口`TypeFilter`, 编写自定义过滤器:
+
+```java
+@Configuration
+@ComponentScan(
+    basePackages = "cn.houtaroy.bean",
+    includeFilters = {@ComponentScan.Filter(type = FilterType.CUSTOM, value = MyTypeFilter.class)}
+)
+public class MyBeanAutoConfig {
+    
+}
+```
+
+
+
+
+
+
+
