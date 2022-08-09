@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-36a0d64e","path":"/spring/skills/controller.html","title":"\u89C6\u56FE\u5C42","lang":"zh-CN","frontmatter":{},"excerpt":"","headers":[],"git":{"updatedTime":1652444410000,"contributors":[{"name":"Houtaroy","email":"Houtaroy@gmail.com","commits":1}]},"filePathRelative":"spring/skills/controller.md"}');export{t as data};
