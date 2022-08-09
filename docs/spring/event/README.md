@@ -1,5 +1,14 @@
 # 事件
 
+Spring事件主要包含如下内容: 事件源/事件/广播器/监听器
+
+## 内置事件
+
+- `ContextRefreshedEvent`：IOC容器刷新完毕但尚未启动，广播该事件
+- `ContextClosedEvent`：IOC容器已经关闭但尚未销毁所有Bean ，广播该事件
+- `ContextStartedEvent`：`ApplicationContext`的`start`方法被触发，广播该事件
+- `ContextStoppedEvent`：`ApplicationContext`的`stop`方法被触发，广播该事件
+
 ## 监听器
 
 - 接口式监听器: 实现接口`ApplicationListener`

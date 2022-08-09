@@ -1,330 +1,211 @@
-# IoC
+# 控制反转
 
-## 概念
+控制反转(**I**nversion **O**f **C**ontrol), 是Spring的核心之一
 
-IoC(**I**nversion **o**f **C**ontrol), 即控制反转, 是一种设计理念, 是Spring的核心功能之一
+它是一种思想, 或者说是设计理念, 并不局限于框架和开发语言
 
-按照中文进阶解读, 我们往往会习惯于将重点放在`控制`这个词上, 但IoC的主要内容应是`反转`
+对于控制反转的理解, 我们不应流于形式或字面意思, 而是从系统设计人员的角度进行思考与探索, 如此这般才能切身体会它的精妙与创造力
 
-先说结论, 控制反转是**对象获取依赖方式的反转**
+## 原理
 
-在初学Java时, 我们经常会使用如下这种方式创建对象:
+控制反转, 按照中文字面解读, 我们往往会习惯于将重点放在**控制**这个词上, 实际上它的主要内容是**反转**
+
+有人可能会说, 没错, 反转的就是控制权嘛
+
+很可惜, 事实并非如此, 反转的是**获取依赖方式**
+
+开头提到了, 控制反转是一种思想, 我们可以将其理解为Java的接口, 它有两种具体的实现: 依赖查找(**D**ependency **L**ookup)和依赖注入(**D**ependency **I**njection)
+
+看到了吗?它们的开头都是**依赖**
+
+我们以依赖查找为例:
+
+假设现在系统中存在一个IOC容器, 我们用Map模拟即可: `Map<String, Object> context`, 它的key是依赖名称, value是依赖实际内容
+
+创建一个类`A`:
 
 ```java
-B b = new B();
-A a = new A(b);
-```
-
-在创建对象`a`之前, 必须先创建它依赖的参数`b`, 然后调用构造方法, 这种创建方式, 我们可以认为是`a`**主动获取**依赖`b`
-
-当对象相互依赖的关系较小时, 还算能看
-
-可当对象依赖的过多或依赖的层级过深时, 上述创建方式简直头大
-
-那么, 设想一下, 如果每个对象之间都知道相互的关系, 并且在创建时会自动关联, 将会是一件多么美妙的事情啊
-
-Spring好像就是这么做的:
-
-```java
-@Component
 public class A {
-    @Autowired
-    private B b;
 }
 ```
 
-在Spring中, 我们无需主动创建`b`, 而是使用DI(**D**ependency **I**njection, 依赖注入)的方式将它**赋予**`a`
-
-从主动获取变为赋予, 这就是所谓的**反转**
-
-当然, 如果非要纠结`控制`这个词的话, 我们可以这么理解:
-
-传统方式的对象创建, 需要开发人员手动编码, **对象的控制权在人手中**
-
-而IoC中, 对象的创建一般交由程序自身, 例如Spring的IoC容器, **控制权从人反转到了程序**
-
-::: warning
-
-对象控制权反转并非官方解释, 仅用于理解和记忆
-
-:::
-
-## 依赖注入
-
-依赖注入是Spring实现IoC的方式, 这里简单介绍下几种注入机制
-
-### 多个同类型注入其一
-
-假设存在多个类型为`B`的bean, 如果指定注入哪个?
-
-使用`@Primary`:
+再创建一个需要`A`依赖的`B`:
 
 ```java
-public class BeanConfig {
-    @Bean
-    @Primary
-    public B one() {
-        return new B();
-    }
+@AllArgsConstructor
+public class B {
+  private A a;
 }
 ```
 
-使用`@Qualifier`:
+创建`A`的实例, 并把它注册到IOC容器中:
 
 ```java
-@Component
-public class A {
-    @Autowired
-    @Qualifier("one")
-    private B b;
+public class IocApplication {
+  public static Map<String, Object> context = new HashMap<>();
+
+  public static void main(String[] args) {
+    context.put("a", new A());
+  }
 }
 ```
 
-::: tip
-
-`@Qualifier` 不受 `@Primary` 的干扰
-
-:::
-
-变量名:
+接下来创建`B`的实例时, 我们可以直接从IOC容器中找到刚才创建好的`A`实例:
 
 ```java
-@Component
-public class A {
-    @Autowired
-    private B one;
+public class IocApplication {
+  public static Map<String, Object> context = new HashMap<>();
+
+  public static void main(String[] args) {
+    context.put("a", new A());
+    context.put("b", new B((A) context.get("a")));
+  }
 }
 ```
 
-通过上述内容其实可以发现Spring依赖注入的流程:
+从IOC容器中查找依赖`A`的过程, 也就是`context.get("a")`, 便是依赖查找
 
-![Spring依赖注入流程](./Spring依赖注入流程.jpg)
+当然, 实际的依赖查找会更加复杂, 例如Spring的依赖查找通常使用`BeanFactory`的`getBean`方法
 
-### 多个同类型全部注入
+再来反观传统方式的实例创建:
 
 ```java
-@Component
-public class A {
-    @Autowired
-    private List<B> bs;
+public class JavaApplication {
+
+  public static void main(String[] args) {
+    A a = new A();
+    B b = new B(a);
+  }
 }
 ```
 
-### 回调注入
+对比一下这两种方式:
 
-使用`ApplicationContextAware`获取`ApplicationContext`:
+- 传统方式: `B`要求代码提供一个`A`的实例, 依赖获取方式是**主动**的
+- 依赖查找: IOC容器查找一个`A`的依赖, 把它赋予`B`, 依赖的保存/获取甚至创建都是由IOC容器完成的, 方式是**被动**的
+
+如果还是不好理解, 我们把`B`改造一下, 变成依赖注入:
 
 ```java
-public class BeanTest implements ApplicationContextAware {
-    
-    private ApplicationContext ctx;
-    
-    public void printBeanNames() {
-        Stream.of(ctx.getBeanDefinitionNames()).forEach(System.out::println);
-    }
-    
-    @Override
-    public void setApplicationContext(ApplicationContext ctx) throws BeansException {
-        this.ctx = ctx;
-    }
+public class B {
+  // Spring中是@Autowired
+  @Resource
+  private A a;
 }
 ```
 
-### 延时注入
+是不是非常明朗了?
 
-使用`ObjectProvider`, 可应用于setter/构造函数/属性, 以构造函数为例:
+所以, 谈及Spring就挂在嘴边的控制反转, 实际是**依赖获取方式的反转**
 
-```java
-@Component
-public class A {
-    private B b;
-    
-    @Autowired
-    public void setB(ObjectProvider<B> b) {
-        this.b = b.getIfAvailable();
-    }
-}
-```
+这里延申一下, 在Spring中我们常使用的控制反转是依赖注入
 
-### 方式选择
+相较于依赖查找, **依赖注入不需要熟知框架的接口(就是刚才提过的`BeanFactory`的`getBean`), 耦合度更低**
 
-Spring官方推荐使用**构造函数注入**, 并且指出了**如果构造函数的参数过长, 则代表其职责过多, 第一选择是对其进行拆解**, 而不是选择其它的依赖注入方式
+## Spring中的IOC
 
-## Bean
+在Spring中, 控制反转主要由以下内容完成:
 
-### 作用域
+- `BeanDefinition`: Bean的定义
+- `Bean`: Bean实例
+- `BeanFactory`: Bean工厂, 即IOC容器
 
-- 单例: 只存在一个
-- 原型: 每次都创建新的
+相较于`BeanFactory`, 更广为人知的是`ApplicationContext`
 
-### 生命周期方法
+它其实是`BeanFactory`的拓展, 内部通常组合了`BeanFactory`, 除控制反转外, 还包括Bean生命周期/后置处理器/事件等
 
-按照方法类型可分为: 
+如果对事件感兴趣, 可以参考[这篇文章](https://houtaroy.github.io/spring/event/)
 
-- 初始化方法: `initMethod`/`@PostConstruct`
-- 销毁方法: `destroyMethod`/`@PreDestroy`
+下面笔者将对Spring中IOC的相关内容进行简单阐述
 
-按照声明方式可分为: 
+其实每个小节都可以展开详细讨论, 如果读者有兴趣, 会在后续更新对应的文章
 
-- Spring: `@Bean(initMethod = "init", destroyMethod = "destroy")`
-- JSR250: `@PostConstruct public void init() {}`
+### BeanDefinition
 
-::: tip
+`BeanDefinition`, 顾名思义, 它就是`Bean`的定义
 
-Spring与JSR250可以共存, 优先级JSR250 > Spring
+在Spring的IOC中, Bean可能为各式各样的Class, 它们的类名/构造函数/属性等等均不相同, 所以需要一个统一的描述或定义来确认每个Bean的信息, 这个东西就叫做`BeanDefinition`, 我们也可以把它称为Bean的元信息
 
-:::
+它包含的大致信息如下:
 
-生命周期方法有如下限制:
+- 全限定类名
+- 作用域
+- 是否延迟加载
+- 工厂Bean名称
+- 构造方法参数列表
+- 属性值
 
-- 方法**无参数**
+感兴趣的读者可以自己使用IDE查看`BeanDefinition`的构成
 
-- 方法**无返回值**
+### Bean
 
-- 方法**可以抛出异常**
+这里不再对`Bean`有过多赘述, 只简单列举下它的类型和作用域
 
-- 访问权限无限制
+`Bean`的类型:
 
-在执行生命周期方法前, **Bean已完成属性赋值**
+- 普通`Bean`: 它是Spring控制反转中最基础的内容, 不过它的基础是上一节的`BeanDefinition`
+- 工厂`Bean`: 也就是`FactoryBean`, 它是用来创建普通`Bean`的工厂, 真正涉及业务逻辑的是由它创建的普通`Bean`
 
-::: danger
+`Bean`的作用域:
 
-作用域为原型的bean, 不支持`destroyMethod`
+- Singleton: 单例, 一个 IOC 容器中只有一个
+- Prototype: 原型, 每次获取创建一个
 
-:::
+**注意: 单例作用域的Bean是线程不安全的, 应是无状态的**
 
-## 装配
+对于Bean的依赖注入, Spring官方推荐使用**构造器注入**, 它拥有下列优点:
 
-### 模块装配
+- 不可变
+- 完全初始化的
+- 保证不为null
 
-`@Configuration` + `@Import` + `@Bean`
+如果因此导致构造器参数列表过长, 其主要原因是Bean承担的职责过多, 应首先考虑对其进行拆解
 
-在开发模块时, 我们经常使用这种方式进行装配:
+### Bean的生命周期
 
-```java
-@Configuration
-@Import(MyBean.class)
-public class MyBeanAutoConfig {
-    
-    @Bean
-    public MyBeanTwo myBeanTwo() {
-        return new MyBeanTwo();
-    }
-}
-```
+Bean的生命周期分为两个阶段: `BeanDefinition`和Bean实例
 
-会在Spring中装配`MyBeanAutoConfig`/`MyBean`/`MyBeanTwo`
+`BeanDefinition`:
 
-`@Import` + `ImportSelector`
+1. 解析配置(xml或注解)
+2. 编程式构造`BeanDefinition`
+3. 后置处理
 
-手动实现`ImportSelector`, 返回一组全限定类名(即`cn.houtaroy.MyBean`):
+Bean实例:
 
-```java
-public class MyBeanImportSelector implements ImportSelector {
-    
-    @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-        return new String[]{MyBean.class.getName()};
-    }
-}
-```
+1. 实例化
+2. 属性赋值 + 依赖注入
+3. 初始化生命周期回调
+4. 实例的销毁
 
-`@Import` + `ImportBeanDefinitionRegistrar`
+列举几个常用的后置处理器:
 
-手动实现`ImportBeanDefinitionRegistrar`, 注册Bean的定义:
+- `BeanDefinitionRegistryPostProcessor`: 所有`BeanDefinition`注册完成, 即将加载到`BeanFactory`时的后置处理器, 可用于新增`BeanDefinition`
+- `BeanFactoryPostProcessor`: 所有`BeanDefinition`在`BeanFactory`中加载结束的后置处理器, 可用于修改`BeanDefinition`
+- `BeanPostProcessor`: `Bean`初始化阶段前后进行干预
 
-```java
-public class MyBeanRegistrar implements ImportBeanDefinitionRegistrar {
-    
-    @Override
-    public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-        registry.registerBeanDefinition("myBean", new RootBeanDefinition(MyBean.class));
-    }
-}
-```
+### 装配
 
-### 条件装配
+共有三种装配方式: 模块装配/条件装配/组件扫描
 
-顾名思义, 条件装配可以根据指定的条件进行装配, 它弥补了模块装配只要导入了就一定会装配的不足
+模块装配通常使用自定义的`@EnableXXX`注解 + `@Import`完成, 如果需要自动装配, 可使用Spring的SPI
 
-#### Profile
+条件装配分为profile和conditional, 前者基于程序整体层面的多环境配置, 后者基于bean层面, 更加灵活
 
-可以理解为环境条件, 它代表着整个项目的运行环境:
+组件扫描使用`@ComponentScan`注解, 可以指定`includeFilters`和`excludeFilters`来进行过滤
 
-```java
-@Configuration
-public class MyBeanAutoConfig {
-    
-    @Bean
-    @Profile("development")
-    public MyBean myBean() {
-        return new MyBean();
-    }
-}
-```
+## 番外
 
-只有在环境为`development`时才会装配`MyBean`
+### 优雅设计
 
-::: tip
+在Spring的IOC容器设计中, 普遍使用的设计思路是: 父类控制流程 + 子类实现细节, 用到的设计模式为: 模板方法
 
-profile默认为`default`
+并且在类的命名上十分清晰, 我们以`DefaultListableBeanFactory`为例, 它的类图如下:
 
-:::
+![DefaultListableBeanFactory](./DefaultListableBeanFactory.png)
 
-#### Conditional
+`BeanFactory`有两个子接口`ListableBeanFactory`和`ConfigurableBeanFactory`, 而`ConfigurableListableBeanFactory`则继承了二者
 
-`profile`控制的是整个项目的条件, `Conditional`则是针对单个Bean的
+`DefaultListableBeanFactory`实现了`ConfigurableListableBeanFactory`
 
-`Conditional`有许多注解, 以常用的`@ConditionalOnMissingBean`为例:
-
-```java
-@Configuration
-public class MyBeanAutoConfig {
-    
-    @Bean
-    @ConditionalOnMissingBean
-    public MyBean myBean() {
-        return new MyBean();
-    }
-}
-```
-
-当容器中不存在`MyBean`类型的Bean时, 才会装配
-
-`Conditional`可以自定义, 详情参照上述`@ConditionalOnMissingBean`即可
-
-### 扫描装配
-
-使用注解`@ComponentScan`可以通过扫描指定的包路径实现装配
-
-有如下两种常用方式:
-
-- 指定包名: `@ComponentScan("cn.houtaroy.bean")`
-- 指定类所在的包: `@ComponentScan(basePackageClasses = AutoScan.class)`
-
-如果需要定制扫描规则, 可以使用过滤器, Spring默认提供了如下过滤器:
-
-- 默认过滤器: 扫描指定包下的`@Component`/`@Repository`/`@Service`/`@Controller`
-- 注解过滤器: `@ComponentScan(includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, value = MyBean.class)})`
-- 类型过滤器: `@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = Houtaroy.class))`
-- 正则表达式过滤器: `@ComponentScan(includeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "cn.houtaroy.+My.+"))`
-
-当Spring提供的过滤器不满足要求时, 可以手动实现接口`TypeFilter`, 编写自定义过滤器:
-
-```java
-@Configuration
-@ComponentScan(
-    basePackages = "cn.houtaroy.bean",
-    includeFilters = {@ComponentScan.Filter(type = FilterType.CUSTOM, value = MyTypeFilter.class)}
-)
-public class MyBeanAutoConfig {
-    
-}
-```
-
-
-
-
-
-
-
+仔细看看图中五个接口或类的名字, 它们的责任能力, 甚至继承关系都十分明朗, 千万不要小看了命名, 这世间所有优雅都出自名称
